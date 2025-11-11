@@ -9,6 +9,7 @@ class EmotionClassify_CNN(nn.Module):
         self.bn1 = nn.BatchNorm2d(32)
         self.pool1 = nn.MaxPool2d(2, 2)
         self.drop1 = nn.Dropout(0.15)
+        
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
         self.bn2   = nn.BatchNorm2d(64)
         self.pool2 = nn.MaxPool2d(2, 2)

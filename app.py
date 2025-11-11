@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 import numpy as np
 import logging
+import argparse
 from datetime import datetime
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
 import av
@@ -23,6 +24,25 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# Parse command line arguments
+def parse_args():
+    parser = argparse.ArgumentParser(description='Face Emotion Recognition App')
+    parser.add_argument(
+        '--model', 
+        type=str, 
+        default='emotion_cnn.pth',
+        help='Path to the model file (default: emotion_cnn.pth)'
+    )
+    # Streamlit adds its own arguments, so we need to handle unknown args
+    args, unknown = parser.parse_known_args()
+    return args
+
+# Get model path from command line or session state
+if 'model_path' not in st.session_state:
+    args = parse_args()
+    st.session_state.model_path = args.model
+
+
 # Emotion classes
 EMOTIONS = ['Angry', 'Fear', 'Happy', 'Sad', 'Surprise']
 MEAN = [0.5109673, 0.5090926, 0.5081655]
@@ -30,14 +50,14 @@ STD = [0.25057644, 0.25016046, 0.25036415]
 
 # Load model
 @st.cache_resource
-def load_model():
-    logger.info("Attempting to load model from: emotion_cnn_full.pth")
+def load_model(model_path):
+    logger.info(f"Attempting to load model from: {model_path}")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     
     try:
         model = EmotionClassify_CNN(num_classes=len(EMOTIONS))
-        model.load_state_dict(torch.load('emotion_cnn.pth', map_location=device))
+        model.load_state_dict(torch.load(model_path, map_location=device))
         model.to(device)
         model.eval()
         logger.info("Model loaded successfully")
@@ -116,7 +136,8 @@ def detect_and_predict(image, model, device, face_cascade):
 class EmotionVideoTransformer(VideoTransformerBase):
     def __init__(self):
         logger.info("Initializing EmotionVideoTransformer for WebRTC stream")
-        self.model, self.device = load_model()
+        model_path = st.session_state.get('model_path', 'emotion_cnn.pth')
+        self.model, self.device = load_model(model_path)
         self.face_cascade = load_face_detector()
         self.frame_count = 0
     
@@ -142,7 +163,8 @@ def main():
     st.markdown("Upload an image or use your camera to detect emotions in real-time!")
     
     try:
-        model, device = load_model()
+        model_path = st.session_state.model_path
+        model, device = load_model(model_path)
         face_cascade = load_face_detector()
     except Exception as e:
         logger.error(f"Failed to initialize app: {str(e)}")
@@ -245,6 +267,7 @@ def main():
         "**About:**\n\n"
         "This app uses a CNN model to detect emotions from facial expressions.\n\n"
         f"**Emotions detected:** {', '.join(EMOTIONS)}\n\n"
+        f"**Model file:** {st.session_state.model_path}\n\n"
         f"**Device:** {device}"
     )
 

@@ -1,41 +1,4 @@
-# Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
 .venv/
-venv/
-ENV/
 
-# Jupyter Notebook
 .ipynb_checkpoints
-
-# Model files (too large for git)
-*.pth
-*.pkl
-*.h5
-*.ckpt
-
-# Logs
-*.log
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Data directories (if you have them)
-data/
-dataset/
-Data/
-
-# Streamlit
-.streamlit/
