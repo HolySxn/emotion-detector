@@ -141,7 +141,7 @@ class EmotionVideoTransformer(VideoTransformerBase):
         self.face_cascade = load_face_detector()
         self.frame_count = 0
     
-    def transform(self, frame):
+    def recv(self, frame):
         self.frame_count += 1
         if self.frame_count % 30 == 0:
             logger.debug(f"Processing frame {self.frame_count}")
@@ -152,7 +152,7 @@ class EmotionVideoTransformer(VideoTransformerBase):
         
         annotated_image, _ = detect_and_predict(pil_image, self.model, self.device, self.face_cascade)
         
-        return cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)
+        return av.VideoFrame.from_ndarray(cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR), format="bgr24")
 
 # Main Streamlit app
 def main():
