@@ -143,8 +143,8 @@ class EmotionVideoTransformer(VideoTransformerBase):
     
     def recv(self, frame):
         self.frame_count += 1
-        if self.frame_count % 30 == 0:
-            logger.debug(f"Processing frame {self.frame_count}")
+        # if self.frame_count % 30 == 0:
+        #     logger.debug(f"Processing frame {self.frame_count}")
         
         img = frame.to_ndarray(format="bgr24")
         img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
