@@ -267,7 +267,6 @@ def main():
         "**About:**\n\n"
         "This app uses a CNN model to detect emotions from facial expressions.\n\n"
         f"**Emotions detected:** {', '.join(EMOTIONS)}\n\n"
-        f"**Model file:** {st.session_state.model_path}\n\n"
         f"**Device:** {device}"
     )
 
