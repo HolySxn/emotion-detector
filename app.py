@@ -10,6 +10,7 @@ import argparse
 from datetime import datetime
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
 import av
+import os
 
 from model import EmotionClassify_CNN
 
@@ -52,6 +53,9 @@ STD = [0.25057644, 0.25016046, 0.25036415]
 @st.cache_resource
 def load_model(model_path):
     logger.info(f"Attempting to load model from: {model_path}")
+    if not os.path.isfile(model_path):
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     
@@ -136,7 +140,8 @@ def detect_and_predict(image, model, device, face_cascade):
 class EmotionVideoTransformer(VideoTransformerBase):
     def __init__(self):
         logger.info("Initializing EmotionVideoTransformer for WebRTC stream")
-        model_path = st.session_state.get('model_path', 'emotion_cnn.pth')
+        model_path = st.session_state.get('model_path', 'models/emotion_cnn.pth')
+        logger.info(f"Using model path in transformer: {model_path}")
         self.model, self.device = load_model(model_path)
         self.face_cascade = load_face_detector()
         self.frame_count = 0
